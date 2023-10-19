@@ -6,14 +6,21 @@ const UserForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) {
+      return;
+    }
+
     if (!validateName(name) || !validateEmail(email) || !validatePassword(password)) {
       return;
     }
+
+    setIsSubmitting(true);
 
     const response = await fetch('/api/user', {
       method: 'POST',
@@ -24,8 +31,11 @@ const UserForm = () => {
     });
 
     if (response.ok) {
-      // Redirect to the success page with query parameters
+      alert("Status Created : " + response.status);
       router.push(`/success?name=${name}&email=${email}`);
+    } else {
+      alert("Server has connectivity issue : " + response.status);
+      setIsSubmitting(false);
     }
   };
 
@@ -60,35 +70,37 @@ const UserForm = () => {
         <div className='col-4 d-sm-none d-md-block'>
         </div>
         <div className='col-sm-10 col-md-4'>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group row">
-                <label htmlFor="user" className="col-sm-2 col-form-label">User ID</label>
-                <div className="col-sm-10">
-                  <input type="text"  className="form-control" id="user" placeholder="User Name" value={name} 
+          <form onSubmit={handleSubmit}>
+            <div className="form-group row">
+              <label htmlFor="user" className="col-sm-2 col-form-label">User ID</label>
+              <div className="col-sm-10">
+                <input type="text" className="form-control" id="user" placeholder="User Name" value={name}
                   onChange={(e) => setName(e.target.value)} required />
-                </div>
               </div>
-              <div className="form-group row">
-                <label htmlFor="staticEmail" className="col-sm-2 col-form-label">Email</label>
-                <div className="col-sm-10">
-                  <input type="email"  className="form-control" id="staticEmail" placeholder="email@example.com"
+            </div>
+            <div className="form-group row">
+              <label htmlFor="staticEmail" className="col-sm-2 col-form-label">Email</label>
+              <div className="col-sm-10">
+                <input type="email" className="form-control" id="staticEmail" placeholder="email@example.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
               </div>
-              <div className="form-group row">
-                <label htmlFor="inputPassword" className="col-sm-2 col-form-label">Password</label>
-                <div className="col-sm-10">
-                  <input type="password" className="form-control" id="inputPassword" placeholder="Password" value={password}
-                    onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-                <button type="submit" className="btn btn-primary">Confirm identity</button>
+            </div>
+            <div className="form-group row">
+              <label htmlFor="inputPassword" className="col-sm-2 col-form-label">Password</label>
+              <div className="col-sm-10">
+                <input type="password" className="form-control" id="inputPassword" placeholder="Password" value={password}
+                  onChange={(e) => setPassword(e.target.value)} required />
               </div>
-           </form>
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Confirm identity'}
+              </button>
+            </div>
+          </form>
         </div>
         <div className='col-4 d-sm-none d-md-block'>
         </div>
+      </div>
     </div>
-</div> 
   );
 };
 
